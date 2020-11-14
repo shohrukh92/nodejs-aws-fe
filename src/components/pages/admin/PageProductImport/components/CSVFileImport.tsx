@@ -3,6 +3,8 @@ import {makeStyles} from '@material-ui/core/styles';
 import Typography from "@material-ui/core/Typography";
 import axios from 'axios';
 
+const CSV_MIME_TYPE = 'text/csv';
+
 const useStyles = makeStyles((theme) => ({
   content: {
     backgroundColor: theme.palette.background.paper,
@@ -31,25 +33,31 @@ export default function CSVFileImport({url, title}: CSVFileImportProps) {
   };
 
   const uploadFile = async (e: any) => {
+    if (file.type === CSV_MIME_TYPE) {
       // Get the presigned URL
-      const response = await axios({
+      const signedUrlResponse = await axios({
         method: 'GET',
         url,
         params: {
           name: encodeURIComponent(file.name)
         }
-      })
-      
+      });
+
       console.log('File to upload: ', file.name);
-      console.log('Uploading to: ', response.data.url);
-      const result = await fetch(response.data.url, {
+      console.log("Uploading to: ", signedUrlResponse.data.url);
+
+      const result = await axios(signedUrlResponse.data.url, {
         method: 'PUT',
-        body: file
-      })
-      console.log('Result: ', result)
-      setFile('');
+        data: file,
+        headers: { 'Content-Type': CSV_MIME_TYPE },
+      });
+
+      console.log('Result: ', result);
+    } else {
+      console.error('File format should be CSV');
     }
-  ;
+    setFile('');
+  };
 
   return (
     <div className={classes.content}>
