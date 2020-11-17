@@ -3,7 +3,11 @@ import {makeStyles} from '@material-ui/core/styles';
 import Typography from "@material-ui/core/Typography";
 import axios from 'axios';
 
-const CSV_MIME_TYPE = 'text/csv';
+const isFileCSV = (file: File) => {
+  // hack for Windows OS, because sometimes the mime type is null
+  const CSV_MIME_TYPES = ['text/csv', 'application/vnd.ms-excel'];
+  return CSV_MIME_TYPES.includes(file.type) || file.name.endsWith('.csv');
+}
 
 const useStyles = makeStyles((theme) => ({
   content: {
@@ -33,8 +37,7 @@ export default function CSVFileImport({url, title}: CSVFileImportProps) {
   };
 
   const uploadFile = async (e: any) => {
-    if (file.type === CSV_MIME_TYPE) {
-      // Get the presigned URL
+    if (isFileCSV(file)) {
       const signedUrlResponse = await axios({
         method: 'GET',
         url,
@@ -49,7 +52,7 @@ export default function CSVFileImport({url, title}: CSVFileImportProps) {
       const result = await axios(signedUrlResponse.data.url, {
         method: 'PUT',
         data: file,
-        headers: { 'Content-Type': CSV_MIME_TYPE },
+        headers: { 'Content-Type': 'text/csv' },
       });
 
       console.log('Result: ', result);
