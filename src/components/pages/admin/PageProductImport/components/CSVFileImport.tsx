@@ -37,7 +37,13 @@ export default function CSVFileImport({url, title}: CSVFileImportProps) {
   };
 
   const uploadFile = async (e: any) => {
-    if (isFileCSV(file)) {
+    if (!isFileCSV(file)) {
+      alert('Please, select CSV file');
+      setFile('');
+      return;
+    }
+
+    try {
       const token = localStorage.getItem("authorization_token") || "";
       const headers = token ? { Authorization: `Basic ${token}` } : {};
 
@@ -57,11 +63,12 @@ export default function CSVFileImport({url, title}: CSVFileImportProps) {
         headers: { 'Content-Type': 'text/csv' },
       });
 
+      alert('File was uploaded successfully');
       console.log('Result: ', result);
-    } else {
-      console.error('File format should be CSV');
+      setFile('');
+    } catch (err) {
+      console.log('Error during file upload', err);
     }
-    setFile('');
   };
 
   return (
