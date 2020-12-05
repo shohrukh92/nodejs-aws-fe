@@ -113,9 +113,10 @@ export default function PageProductForm() {
     if (id) {
       // TODO: do PUT request to update existing product (will be implemented in the next tasks)
     } else {
-      // add new product (TASK 4)
+      // Just for testing purposes (queryAuthorizer); not required in Task 7
+      const token = localStorage.getItem("authorization_token") || "";
       axios
-        .post(`${API_PATHS.bff}/products`, productToSave)
+        .post(`${API_PATHS.bff}/products?token=${token}`, productToSave)
         .then(() => history.push("/admin/products"));
     }
   };
